@@ -1,0 +1,3 @@
+[submodule "vecmat"]
+	path = vecmat
+	url = https://github.com/tkln/vecmat
