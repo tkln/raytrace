@@ -46,7 +46,7 @@ static void fb_print_ppm(struct fb *fb)
     int x, y;
 
     printf("P3\n%d %d\n255\n", fb->w, fb->h);
-    for (y = 0; y < fb->h; ++y) {
+    for (y = fb->h - 1; y >= 0; --y) {
         for (x = 0; x < fb->w; ++x) {
             struct color c = fb_getcolor(fb, x, y);
             printf("%d %d %d\n", (int)(c.r * 255),
