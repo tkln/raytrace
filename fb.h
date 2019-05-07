@@ -2,6 +2,7 @@
 #define FB_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 struct color {
     float r, g, b, a;
