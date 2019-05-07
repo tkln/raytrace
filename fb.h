@@ -28,20 +28,41 @@ static void fb_free(struct fb *fb)
     fb->b = NULL;
 }
 
+#ifdef FB_DO_BOUNDS_CHECK
+static inline bool fb_out_of_bounds(struct fb *fb, int x, int y)
+{
+    return x < 0 || y < 0 || x >= fb->w || y >= fb->h;
+}
+#else
+static inline bool fb_out_of_bounds(struct fb *fb, int x, int y)
+{
+    return false;
+}
+#endif
+
 static inline void fb_putcolor(struct fb *fb, int x, int y, struct color c)
 {
+    if (fb_out_of_bounds(fb, x, y))
+        return;
+
     fb->b[x + y * fb->w] = c;
 }
 
 static inline void fb_putpixel(struct fb *fb, int x, int y, float r, float g,
                                float b, float a)
 {
+    if (fb_out_of_bounds(fb, x, y))
+        return;
+
     struct color c = { r, g, b, a };
     fb_putcolor(fb, x, y, c);
 }
 
 static inline struct color fb_getcolor(struct fb *fb, int x, int y)
 {
+    if (fb_out_of_bounds(fb, x, y))
+        return (struct color) { -1.0f, -1.0f, -1.0f -1.0f };
+
     return fb->b[x + y * fb->w];
 }
 
