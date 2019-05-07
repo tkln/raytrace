@@ -11,6 +11,10 @@ struct fb {
     int h;
 };
 
+#define DEFINE_FB(name, width, height)                  \
+    struct color fb_data_##name[width * height];        \
+    struct fb name = { fb_data_##name, width, height };
+
 static void fb_init(struct fb *fb, int w, int h)
 {
     fb->b = malloc(w * h * sizeof(fb->b[0]));
