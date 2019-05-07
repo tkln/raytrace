@@ -41,12 +41,12 @@ static struct color get_ray_color(struct ray ray)
     return (struct color){ c.x, c.y, c.z, 1.0f };
 }
 
+
 int main(void)
 {
-    const int fb_w = 480;
-    const int fb_h = 240;
     int x, y;
-    struct fb fb;
+
+    static DEFINE_FB(fb, 480, 240);
 
     struct vec3f lower_left_corner = { -2.0f, -1.0f, -1.0f };
     struct vec3f horizontal = { 4.0f, 0.0f, 0.0f };
@@ -56,12 +56,10 @@ int main(void)
     struct ray ray;
     float u, v;
 
-    fb_init(&fb, fb_w, fb_h);
-    
-    for (y = 0; y < fb_h; ++y) {
-        for (x = 0; x < fb_w; ++x) {
-            u = (float) x / fb_w;
-            v = (float) y / fb_h;
+    for (y = 0; y < fb.h; ++y) {
+        for (x = 0; x < fb.w; ++x) {
+            u = (float) x / fb.w;
+            v = (float) y / fb.h;
             ray.orig = origin;
             ray.dir = vec3f_add(vec3f_add(vec3f_muls(horizontal, u),
                                           vec3f_muls(vertical, v)),
@@ -72,6 +70,4 @@ int main(void)
     }
 
     fb_print_ppm(&fb);
-
-    fb_free(&fb);
 }
