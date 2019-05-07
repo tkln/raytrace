@@ -1,6 +1,8 @@
 #ifndef FB_H
 #define FB_H
 
+#include <stdio.h>
+
 struct color {
     float r, g, b, a;
 };
@@ -66,7 +68,7 @@ static inline struct color fb_getcolor(struct fb *fb, int x, int y)
     return fb->b[x + y * fb->w];
 }
 
-static void fb_print_ppm(struct fb *fb)
+static void fb_save_ppm(FILE *f, struct fb *fb)
 {
     int x, y;
 
@@ -74,11 +76,16 @@ static void fb_print_ppm(struct fb *fb)
     for (y = fb->h - 1; y >= 0; --y) {
         for (x = 0; x < fb->w; ++x) {
             struct color c = fb_getcolor(fb, x, y);
-            printf("%d %d %d\n", (int)(c.r * 255),
-                                 (int)(c.g * 255),
-                                 (int)(c.b * 255));
+            fprintf(f, "%d %d %d\n", (int)(c.r * 255),
+                                     (int)(c.g * 255),
+                                     (int)(c.b * 255));
         }
     }
+}
+
+static void fb_print_ppm(struct fb *fb)
+{
+    fb_save_ppm(stdout, fb);
 }
 
 #endif
