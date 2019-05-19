@@ -61,9 +61,9 @@ int main(void)
             u = (float) x / fb.w;
             v = (float) y / fb.h;
             ray.orig = origin;
-            ray.dir = vec3f_add(vec3f_add(vec3f_muls(horizontal, u),
-                                          vec3f_muls(vertical, v)),
-                                lower_left_corner);
+            ray.dir = vec3f_add3(vec3f_muls(horizontal, u),
+                                 vec3f_muls(vertical, v),
+                                 lower_left_corner);
 
             fb_putcolor(&fb, x, y, get_ray_color(ray));
         }
