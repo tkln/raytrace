@@ -119,24 +119,37 @@ struct ray camera_gen_ray(struct camera *cam, float u, float v)
     return ray;
 }
 
+struct color color_add(struct color a, struct color b)
+{
+    struct vec3f s = vec3f_add(*(struct vec3f *)&a, *(struct vec3f *)&b);
+    return *(struct color *)&s;
+}
+
 int main(void)
 {
     struct camera cam;
-    int x, y;
+    int x, y, s;
+    int ns = 100;
 
     static DEFINE_FB(fb, 480, 240);
 
     struct ray ray;
+    struct color c;
     float u, v;
 
     camera_init(&cam, fb.w, fb.h, 4.0f);
 
     for (y = 0; y < fb.h; ++y) {
         for (x = 0; x < fb.w; ++x) {
-            u = x / (float)fb.w;
-            v = y / (float)fb.h;
-            ray = camera_gen_ray(&cam, u, v);
-            fb_putcolor(&fb, x, y, get_ray_color(ray));
+            c = (struct color) { 0.0f, 0.0f, 0.0f, 0.0f };
+            for (s = 0; s < ns; ++s) {
+                u = (x + drand48()) / fb.w;
+                v = (y + drand48()) / fb.h;
+                ray = camera_gen_ray(&cam, u, v);
+                c = color_add(c, get_ray_color(ray));
+            }
+            c = (struct color) { c.r / ns, c.g / ns, c.b / ns };
+            fb_putcolor(&fb, x, y, c);
         }
     }
 
