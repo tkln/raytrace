@@ -89,30 +89,53 @@ static struct color get_ray_color(struct ray ray)
     return (struct color){ c.x, c.y, c.z, 1.0f };
 }
 
+struct camera {
+    struct vec3f bottom_left;
+    struct vec3f horiz;
+    struct vec3f vert;
+    struct vec3f orig;
+};
+
+void camera_init(struct camera *cam, int fb_w, int fb_h, float viewport_w)
+{
+    float ar = fb_w / (float)fb_h;
+    *cam = (struct camera) {
+        .bottom_left    = { -viewport_w / 2.0f, -1.0f, -1.0f },
+        .horiz          = { viewport_w, 0.0f, 0.0f },
+        .vert           = { 0.0f, viewport_w / ar, 0.0f },
+        .orig           = { 0.0f, 0.0f, 0.0f }
+    };
+}
+
+struct ray camera_gen_ray(struct camera *cam, float u, float v)
+{
+    struct ray ray = {
+        .orig = cam->orig,
+        .dir = vec3f_add3(vec3f_muls(cam->horiz, u),
+                          vec3f_muls(cam->vert, v),
+                          cam->bottom_left)
+    };
+
+    return ray;
+}
 
 int main(void)
 {
+    struct camera cam;
     int x, y;
 
     static DEFINE_FB(fb, 480, 240);
 
-    struct vec3f lower_left_corner = { -2.0f, -1.0f, -1.0f };
-    struct vec3f horizontal = { 4.0f, 0.0f, 0.0f };
-    struct vec3f vertical = { 0.0f, 2.0f, 0.0f };
-    struct vec3f origin = { 0.0f, 0.0f, 0.0f };
-
     struct ray ray;
     float u, v;
 
+    camera_init(&cam, fb.w, fb.h, 4.0f);
+
     for (y = 0; y < fb.h; ++y) {
         for (x = 0; x < fb.w; ++x) {
-            u = (float) x / fb.w;
-            v = (float) y / fb.h;
-            ray.orig = origin;
-            ray.dir = vec3f_add3(vec3f_muls(horizontal, u),
-                                 vec3f_muls(vertical, v),
-                                 lower_left_corner);
-
+            u = x / (float)fb.w;
+            v = y / (float)fb.h;
+            ray = camera_gen_ray(&cam, u, v);
             fb_putcolor(&fb, x, y, get_ray_color(ray));
         }
     }
