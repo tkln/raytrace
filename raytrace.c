@@ -1,4 +1,5 @@
 #include <float.h>
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -174,6 +175,7 @@ int main(void)
                 c = color_add(c, trace(ray, 0));
             }
             c = (struct color) { c.r / ns, c.g / ns, c.b / ns };
+            c = (struct color) { sqrtf(c.r), sqrtf(c.g), sqrtf(c.b) };
             fb_putcolor(&fb, x, y, c);
         }
     }
