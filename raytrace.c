@@ -73,8 +73,8 @@ static inline struct vec3f random_in_unit_sphere(void)
     struct vec3f p;
 
     do {
-        p = vec3f_muls(vec3f_sub(vec3f_init(drand48(), drand48(), drand48()),
-                                 vec3f_ones), 2.0f);
+        p = vec3f_init(drand48(), drand48(), drand48());
+        p = vec3f_sub(vec3f_muls(p, 2.0f), vec3f_ones);
     } while (vec3f_norm2(p) >= 1.0f);
 
     return p;
