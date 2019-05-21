@@ -171,7 +171,7 @@ int main(void)
     int x, y, s;
     int ns = 100;
 
-    static DEFINE_FB(fb, 480, 240);
+    static DEFINE_FB(fb, 640, 480);
 
     struct ray ray;
     struct color c;
