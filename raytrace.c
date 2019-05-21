@@ -54,6 +54,13 @@ struct sphere {
         },
         .orig = { 1.0f, 0.0f, -1.0f },
         .r = 0.5f,
+    }, {
+        .mat = {
+            .type = MATERIAL_METAL,
+            .albedo = { 0.5f, 0.7f, 0.3f },
+        },
+        .orig = { -1.0f, 0.0f, 0.5f },
+        .r = 0.5f,
     },
 };
 
