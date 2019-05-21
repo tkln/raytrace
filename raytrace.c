@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "fb.h"
 #include "ray.h"
@@ -192,9 +193,11 @@ struct ray camera_gen_ray(struct camera *cam, float u, float v)
 
 int main(void)
 {
+    struct timespec t_start, t_end, delta;
     struct camera cam;
     int x, y, s;
     int ns = 100;
+    int err;
 
     static DEFINE_FB(fb, 640, 480);
 
@@ -204,6 +207,9 @@ int main(void)
 
     camera_init(&cam, fb.w, fb.h, 4.0f);
 
+    err = clock_gettime(CLOCK_MONOTONIC, &t_start);
+    if (err == -1)
+        perror("clock_gettime");
     for (y = 0; y < fb.h; ++y) {
         for (x = 0; x < fb.w; ++x) {
             c = (struct color) { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -222,5 +228,15 @@ int main(void)
     }
     fprintf(stderr, "\n");
 
+    err = clock_gettime(CLOCK_MONOTONIC, &t_end);
+    if (err == -1)
+        perror("clock_gettime");
+
+    delta.tv_sec = t_end.tv_sec - t_start.tv_sec;
+    delta.tv_nsec = t_end.tv_nsec - t_start.tv_nsec;
+    fprintf(stderr, "Done in %g s\n", delta.tv_sec + delta.tv_nsec * 1e-9);
+
     fb_print_ppm(&fb);
+
+    return EXIT_SUCCESS;
 }
