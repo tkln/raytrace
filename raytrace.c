@@ -37,10 +37,16 @@ float hit_sphere(struct vec3f center, float r, struct ray ray)
     float a = vec3f_dot(ray.dir, ray.dir);
     float b = 2.0f * vec3f_dot(oc, ray.dir);
     float c = vec3f_dot(oc, oc) - r * r;
-    float discriminant = b*b - 4 * a * c;
+    float discriminant = b * b - 4 * a * c;
+    float t;
     if (discriminant < 0.0f)
         return -1.0f;
-    return (-b - sqrtf(discriminant)) / (2.0f * a);
+    t = (-b - sqrtf(discriminant)) / (2.0f * a);
+    if (t > 0.0f)
+        return t;
+    t = (-b + sqrtf(discriminant)) / (2.0f * a);
+    if (t > 0.0f)
+        return t;
 }
 
 static bool test_hit(struct ray ray, struct hit *hit)
