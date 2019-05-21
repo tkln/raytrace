@@ -192,7 +192,10 @@ int main(void)
             c = (struct color) { sqrtf(c.r), sqrtf(c.g), sqrtf(c.b) };
             fb_putcolor(&fb, x, y, c);
         }
+        if (y % 10 == 0)
+            fprintf(stderr, "%.2f%%\r", 100.0f * y / fb.h);
     }
+    fprintf(stderr, "\n");
 
     fb_print_ppm(&fb);
 }
