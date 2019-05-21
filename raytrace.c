@@ -11,7 +11,13 @@
 
 #define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
+enum material_type {
+    MATERIAL_LAMBERTIAN,
+    MATERIAL_METAL,
+};
+
 struct material {
+    enum material_type type;
     struct color albedo;
 };
 
@@ -22,24 +28,28 @@ struct sphere {
 } spheres[] = {
     {
         .mat = {
+            .type = MATERIAL_LAMBERTIAN,
             .albedo = { 0.5f, 0.5f, 0.5f },
         },
         .orig = { 0.0f, -100.5f, -1.0f },
         .r = 100.0f,
     }, {
         .mat = {
+            .type = MATERIAL_METAL,
             .albedo = { 0.3f, 0.5f, 0.7f },
         },
         .orig = { -1.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
         .mat = {
+            .type = MATERIAL_METAL,
             .albedo = { 0.3f, 0.7f, 0.5f },
         },
         .orig = { 0.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
         .mat = {
+            .type = MATERIAL_LAMBERTIAN,
             .albedo = { 0.7f, 0.3f, 0.5f },
         },
         .orig = { 1.0f, 0.0f, -1.0f },
@@ -133,6 +143,11 @@ struct vec3f vec3f_lerp(struct vec3f a, struct vec3f b, float t)
     return vec3f_add(vec3f_muls(a, 1.0f - t), vec3f_muls(b, t));
 }
 
+static inline struct vec3f vec3f_reflect(struct vec3f v, struct vec3f n)
+{
+    return vec3f_sub(v ,vec3f_muls(vec3f_muls(n, vec3f_dot(v, n)), 2.0f));
+}
+
 static struct color trace(struct ray ray, int n_bounce)
 {
     struct vec3f unit_dir = vec3f_normalized(ray.dir);
@@ -148,10 +163,18 @@ static struct color trace(struct ray ray, int n_bounce)
         is_hit = test_hit(ray, &hit);
 
     if (is_hit) {
-        ray.orig = hit.p;
-        ray.dir = vec3f_add(hit.n, random_in_unit_sphere());
-        c = trace(ray, n_bounce + 1);
-        return color_mul(c, hit.mat.albedo);
+        if (hit.mat.type == MATERIAL_LAMBERTIAN) {
+            ray.orig = hit.p;
+            ray.dir = vec3f_add(hit.n, random_in_unit_sphere());
+            c = trace(ray, n_bounce + 1);
+            return color_mul(c, hit.mat.albedo);
+        } else {
+            ray.orig = hit.p;
+            ray.dir = vec3f_reflect(ray.dir, hit.n);
+            c = trace(ray, n_bounce + 1);
+            if (vec3f_dot(ray.dir, hit.n) > 0.0f)
+                return color_mul(c, hit.mat.albedo);
+        }
     }
 
     /* Background color */
