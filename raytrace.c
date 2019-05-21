@@ -99,6 +99,11 @@ static inline struct color color_muls(struct color c, float x)
     return *(struct color *)&s;
 }
 
+struct vec3f vec3f_lerp(struct vec3f a, struct vec3f b, float t)
+{
+    return vec3f_add(vec3f_muls(a, 1.0f - t), vec3f_muls(b, t));
+}
+
 static struct color trace(struct ray ray, int n_bounce)
 {
     struct vec3f unit_dir = vec3f_normalized(ray.dir);
@@ -106,23 +111,23 @@ static struct color trace(struct ray ray, int n_bounce)
     struct color c;
     struct vec3f cm;
     struct hit hit;
-    bool is_hit;
+    bool is_hit = false;
+    const int max_bounces = 100;
     float t;
-    const int max_bounce = 10;
 
-    is_hit = test_hit(ray, &hit);
-    if (is_hit && n_bounce < max_bounce) {
-        target = vec3f_add3(hit.p, hit.n, random_in_unit_sphere());
+    if (n_bounce < max_bounces)
+        is_hit = test_hit(ray, &hit);
+
+    if (is_hit) {
         ray.orig = hit.p;
-        ray.dir = vec3f_sub(target, hit.p);
+        ray.dir = vec3f_add(hit.n, random_in_unit_sphere());
         c = trace(ray, n_bounce + 1);
         return color_muls(c, 0.5f);
     }
 
     /* Background color */
     t = 0.5f * (unit_dir.y + 1.0f);
-    cm = vec3f_add(vec3f_init(1.0f - t, 1.0f - t, 1.0f - t),
-                   vec3f_muls(vec3f_init(0.5f, 0.7f, 1.0f), t));
+    cm = vec3f_lerp(vec3f_ones, vec3f_init(0.5f, 0.7f, 1.0f), t);
 
     return (struct color){ cm.x, cm.y, cm.z, 1.0f };
 }
