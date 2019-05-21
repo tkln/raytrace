@@ -10,26 +10,44 @@
 
 #define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
+struct material {
+    struct color color;
+};
+
 struct sphere {
+    struct material mat;
     struct vec3f orig;
     float r;
 } spheres[] = {
     {
+        .mat = {
+            .color = { 0.5f, 0.5f, 0.5f },
+        },
         .orig = { 0.0f, -100.5f, -1.0f },
         .r = 100.0f,
     }, {
+        .mat = {
+            .color = { 0.3f, 0.5f, 0.7f },
+        },
         .orig = { -1.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
+        .mat = {
+            .color = { 0.3f, 0.7f, 0.5f },
+        },
         .orig = { 0.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
+        .mat = {
+            .color = { 0.7f, 0.3f, 0.5f },
+        },
         .orig = { 1.0f, 0.0f, -1.0f },
         .r = 0.5f,
     },
 };
 
 struct hit {
+    struct material mat;
     struct vec3f p;
     struct vec3f n;
 };
@@ -72,6 +90,7 @@ static bool test_hit(struct ray ray, struct hit *hit)
     if (min_t != FLT_MAX) {
         hit->p = ray_point_along(ray, min_t);
         hit->n = vec3f_normalized(vec3f_sub(hit->p, spheres[min_i].orig));
+        hit->mat = spheres[min_i].mat;
         return true;
     }
     return false;
@@ -102,6 +121,12 @@ static inline struct color color_muls(struct color c, float x)
     return *(struct color *)&s;
 }
 
+static inline struct color color_mul(struct color a, struct color b)
+{
+    struct vec3f s = vec3f_mul(*(struct vec3f *)&a, *(struct vec3f *)&b);
+    return *(struct color *)&s;
+}
+
 struct vec3f vec3f_lerp(struct vec3f a, struct vec3f b, float t)
 {
     return vec3f_add(vec3f_muls(a, 1.0f - t), vec3f_muls(b, t));
@@ -125,7 +150,7 @@ static struct color trace(struct ray ray, int n_bounce)
         ray.orig = hit.p;
         ray.dir = vec3f_add(hit.n, random_in_unit_sphere());
         c = trace(ray, n_bounce + 1);
-        return color_muls(c, 0.5f);
+        return color_mul(c, hit.mat.color);
     }
 
     /* Background color */
