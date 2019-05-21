@@ -12,7 +12,7 @@
 #define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
 struct material {
-    struct color color;
+    struct color albedo;
 };
 
 struct sphere {
@@ -22,25 +22,25 @@ struct sphere {
 } spheres[] = {
     {
         .mat = {
-            .color = { 0.5f, 0.5f, 0.5f },
+            .albedo = { 0.5f, 0.5f, 0.5f },
         },
         .orig = { 0.0f, -100.5f, -1.0f },
         .r = 100.0f,
     }, {
         .mat = {
-            .color = { 0.3f, 0.5f, 0.7f },
+            .albedo = { 0.3f, 0.5f, 0.7f },
         },
         .orig = { -1.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
         .mat = {
-            .color = { 0.3f, 0.7f, 0.5f },
+            .albedo = { 0.3f, 0.7f, 0.5f },
         },
         .orig = { 0.0f, 0.0f, -1.0f },
         .r = 0.5f,
     }, {
         .mat = {
-            .color = { 0.7f, 0.3f, 0.5f },
+            .albedo = { 0.7f, 0.3f, 0.5f },
         },
         .orig = { 1.0f, 0.0f, -1.0f },
         .r = 0.5f,
@@ -151,7 +151,7 @@ static struct color trace(struct ray ray, int n_bounce)
         ray.orig = hit.p;
         ray.dir = vec3f_add(hit.n, random_in_unit_sphere());
         c = trace(ray, n_bounce + 1);
-        return color_mul(c, hit.mat.color);
+        return color_mul(c, hit.mat.albedo);
     }
 
     /* Background color */
