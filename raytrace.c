@@ -58,7 +58,7 @@ static bool test_hit(struct ray ray, struct hit *hit)
 
     for (i = 0; i < ARRAY_LEN(spheres); ++i) {
         t = hit_sphere(spheres[i].orig, spheres[i].r, ray);
-        if (t < 0.0f)
+        if (t <= 0.0f)
             continue;
         if (t < min_t) {
             min_t = t;
