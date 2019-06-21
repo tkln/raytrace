@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <time.h>
 
 #include "fb.h"
 #include "ray.h"
 #include "vecmat/vec3f.h"
+#include "ptimer/ptimer.h"
 
 #define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -223,7 +223,7 @@ struct ray camera_gen_ray(struct camera *cam, float u, float v)
 
 int main(void)
 {
-    struct timespec t_start, t_end, delta;
+    struct ptimer_interval timer;
     struct camera cam;
     int x, y, s;
     int ns = 100;
@@ -237,7 +237,7 @@ int main(void)
 
     camera_init(&cam, fb.w, fb.h, 4.0f);
 
-    err = clock_gettime(CLOCK_MONOTONIC, &t_start);
+    err = ptimer_start(&timer);
     if (err == -1)
         perror("clock_gettime");
     for (y = 0; y < fb.h; ++y) {
@@ -258,13 +258,11 @@ int main(void)
     }
     fprintf(stderr, "\n");
 
-    err = clock_gettime(CLOCK_MONOTONIC, &t_end);
+    err = ptimer_end(&timer);
     if (err == -1)
         perror("clock_gettime");
 
-    delta.tv_sec = t_end.tv_sec - t_start.tv_sec;
-    delta.tv_nsec = t_end.tv_nsec - t_start.tv_nsec;
-    fprintf(stderr, "Done in %g s\n", delta.tv_sec + delta.tv_nsec * 1e-9);
+    ptimer_fprint(stderr, "Done in ", &timer);
 
     fb_print_ppm(&fb);
 
