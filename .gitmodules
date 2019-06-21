@@ -1,3 +1,6 @@
 [submodule "vecmat"]
 	path = vecmat
 	url = https://github.com/tkln/vecmat
+[submodule "ptimer"]
+	path = ptimer
+	url = https://github.com/tkln/ptimer
